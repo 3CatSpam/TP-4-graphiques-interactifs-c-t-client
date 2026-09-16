@@ -2,104 +2,17 @@
 import PlotFigure from "../components/PlotFigure.astro";
 import Layout from "../layouts/Layout.astro";
 import * as Plot from "@observablehq/plot";
-import penguins from "../assets/penguins.json";
-const penguinsAdelie = penguins.filter(({ species }) => species === "Adelie");
-const penguinsChinstrap = penguins.filter(({ species }) => species === "Chinstrap");
-const penguinsGentoo = penguins.filter(({ species }) => species === "Gentoo");
 ---
 
-<Layout>
-  <main class="home-content">
-    <h1 class="mt-0 text-2xl">Comparaison des manchots</h1>
-
-    <label for="species">Espèce</label>
-    <select id="species" class="chart-menu" aria-label="Accès aux graphiques">
-      <option value="adelie">Adelie</option>
-      <option value="chinstrap">Chinstrap</option>
-      <option value="gentoo">Gentoo</option>
-    </select>
-
-    <div class="slider" aria-label="Graphiques des différentes espèces">
-      <section class="chart-slide item" id="adelie">
-        <h2 class="mt-0">Adelie</h2>
-        <PlotFigure
-          title="Mesures des manchots Adelie"
-          subtitle="Longueur et profondeur du culmen des manchots Adelie."
-          caption="Figure 1. Distribution des mesures des manchots Adelie."
-          ariaLabel="Nuage de points des mesures des manchots Adelie"
-          options={{
-            marks: [
-              Plot.dot(penguinsAdelie, {
-                x: "culmen_length_mm",
-                y: "culmen_depth_mm",
-                stroke: "species",
-              }),
-            ],
-          }}
-        />
-      </section>
-
-      <section class="chart-slide item" id="chinstrap">
-        <h2 class="mt-0">Chinstrap</h2>
-        <PlotFigure
-          title="Mesures des manchots Chinstrap"
-          subtitle="Longueur et profondeur du culmen des manchots Chinstrap."
-          caption="Figure 2. Distribution des mesures des manchots Chinstrap."
-          ariaLabel="Nuage de points des mesures des manchots Chinstrap"
-          options={{
-            marks: [
-              Plot.dot(penguinsChinstrap, {
-                x: "culmen_length_mm",
-                y: "culmen_depth_mm",
-                stroke: "species",
-              }),
-            ],
-          }}
-        />
-      </section>
-
-      <section class="chart-slide item" id="gentoo">
-        <h2 class="mt-0">Gentoo</h2>
-        <PlotFigure
-          title="Mesures des manchots Gentoo"
-          subtitle="Longueur et profondeur du culmen des manchots Gentoo."
-          caption="Figure 3. Distribution des mesures des manchots Gentoo."
-          ariaLabel="Nuage de points des mesures des manchots Gentoo"
-          options={{
-            marks: [
-              Plot.dot(penguinsGentoo, {
-                x: "culmen_length_mm",
-                y: "culmen_depth_mm",
-                stroke: "species",
-              }),
-            ],
-          }}
-        />
-      </section>
-    </div>
-  </main>
-</Layout>
-
+<!DOCTYPE html>
+<Layout></Layout>
+<div id="myplot"></div>
 <script>
-  const speciesSelect = document.querySelector("#species") as HTMLSelectElement | null;
-  const items = document.querySelectorAll(".item");
 
-  speciesSelect?.addEventListener("change", (event) => {
-    const value = (event.target as HTMLSelectElement).value;
-    location.hash = value;
-  });
+import * as Plot from "@observablehq/plot";
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        const id = entry.target.getAttribute("id");
-        if (entry.isIntersecting && id && speciesSelect) {
-          speciesSelect.value = id;
-        }
-      });
-    },
-    { threshold: 0.5 },
-  );
+const plot = Plot.rectY({length: 10000}, Plot.binX({y: "count"}, {x: Math.random})).plot();
+const div = document.querySelector("#myplot");
+div.append(plot);
 
-  items.forEach((item) => observer.observe(item));
 </script>
