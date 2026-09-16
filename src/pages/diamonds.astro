@@ -1,0 +1,62 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PlotFigure from "../components/PlotFigure.astro";
+import * as Plot from "@observablehq/plot";
+import diamonds from "../assets/diamonds.json";
+const qualityDiamonds = diamonds
+  .filter(({ clarity }) => ["VVS1", "VVS2", "IF"].includes(clarity))
+  .filter((_, index) => index % 10 === 0);
+const diamondColors = [...new Set(qualityDiamonds.map(({ color }) => color))];
+const colorGrades: Record<string, string> = {
+  D: "Blanc exceptionnel",
+  E: "Incolore",
+  F: "Incolore",
+  G: "Presque incolore",
+  H: "Presque incolore",
+  I: "Presque incolore",
+  J: "Presque incolore",
+};
+---
+
+<Layout>
+  <main class="home-content">
+    <h1 class="mt-0 text-2xl">Diamants</h1>
+    <label for="diamonds-navigation">Couleur</label>
+    <select id="diamonds-navigation" class="chart-menu" aria-label="Diamants par couleur">
+      {diamondColors.map((color) => (
+        <option value={`/diamonds/${color}`}>
+          Grade {color} - {colorGrades[color]}
+        </option>
+      ))}
+    </select>
+    <section class="chart-slide">
+      <PlotFigure
+        title="Prix des diamants selon leur poids"
+        subtitle="Les points sont différenciés selon la qualité de la coupe."
+        caption="Nuage de points comparant le poids et le prix des diamants sélectionnés."
+        ariaLabel="Nuage de points du prix et du poids des diamants"
+        options={{
+          x: { label: "Carat" },
+          y: { label: "Price ($)" },
+          marks: [
+            Plot.dot(qualityDiamonds, {
+              x: "carat",
+              y: "price",
+              stroke: "cut",
+              tip: true,
+            }),
+          ],
+        }}
+      />
+    </section>
+  </main>
+</Layout>
+
+<script>
+  const diamondsSelect = document.querySelector("#diamonds-navigation") as HTMLSelectElement | null;
+
+  diamondsSelect?.addEventListener("change", (event) => {
+    const value = (event.target as HTMLSelectElement).value;
+    location.pathname = value;
+  });
+</script>

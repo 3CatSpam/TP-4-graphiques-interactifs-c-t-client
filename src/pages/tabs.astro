@@ -1,8 +1,15 @@
 ---
+import { Tabs, TabsList, TabsTab, TabsPanel } from "accessible-astro-components";
 import PlotFigure from "../components/PlotFigure.astro";
 import Layout from "../layouts/Layout.astro";
 import * as Plot from "@observablehq/plot";
 import penguins from "../assets/penguins.json";
+
+const AccessibleTabs = Tabs as any;
+const AccessibleTabsList = TabsList as any;
+const AccessibleTabsTab = TabsTab as any;
+const AccessibleTabsPanel = TabsPanel as any;
+
 const penguinsAdelie = penguins.filter(({ species }) => species === "Adelie");
 const penguinsChinstrap = penguins.filter(({ species }) => species === "Chinstrap");
 const penguinsGentoo = penguins.filter(({ species }) => species === "Gentoo");
@@ -10,17 +17,40 @@ const penguinsGentoo = penguins.filter(({ species }) => species === "Gentoo");
 
 <Layout>
   <main class="home-content">
-    <h1 class="mt-0 text-2xl">Comparaison des manchots</h1>
+    <h1 class="mt-0 text-2xl">Comparaison des manchots avec des onglets</h1>
 
-    <label for="species">Espèce</label>
-    <select id="species" class="chart-menu" aria-label="Accès aux graphiques">
-      <option value="adelie">Adelie</option>
-      <option value="chinstrap">Chinstrap</option>
-      <option value="gentoo">Gentoo</option>
-    </select>
+    <AccessibleTabs class="!my-6">
+      <AccessibleTabsList class="!flex !gap-4 !border-b !border-[#d9e2e8]">
+        <AccessibleTabsTab
+          id="adelie-tab"
+          controls="adelie-panel"
+          selected
+          class="!rounded-t-md !border !border-b-0 !border-[#d9e2e8] !bg-white !px-4 !py-2 !font-bold !text-[#176b87] aria-selected:!bg-[#d9f0f5] aria-selected:!text-[#0f566b]"
+        >
+          Adelie
+        </AccessibleTabsTab>
+        <AccessibleTabsTab
+          id="chinstrap-tab"
+          controls="chinstrap-panel"
+          class="!rounded-t-md !border !border-b-0 !border-[#d9e2e8] !bg-white !px-4 !py-2 !font-bold !text-[#176b87] aria-selected:!bg-[#d9f0f5] aria-selected:!text-[#0f566b]"
+        >
+          Chinstrap
+        </AccessibleTabsTab>
+        <AccessibleTabsTab
+          id="gentoo-tab"
+          controls="gentoo-panel"
+          class="!rounded-t-md !border !border-b-0 !border-[#d9e2e8] !bg-white !px-4 !py-2 !font-bold !text-[#176b87] aria-selected:!bg-[#d9f0f5] aria-selected:!text-[#0f566b]"
+        >
+          Gentoo
+        </AccessibleTabsTab>
+      </AccessibleTabsList>
 
-    <div class="slider" aria-label="Graphiques des différentes espèces">
-      <section class="chart-slide item" id="adelie">
+      <AccessibleTabsPanel
+        id="adelie-panel"
+        labelledby="adelie-tab"
+        selected
+        class="!rounded-b-lg !border !border-t-0 !border-[#d9e2e8] !bg-white !p-4"
+      >
         <h2 class="mt-0">Adelie</h2>
         <PlotFigure
           title="Mesures des manchots Adelie"
@@ -37,9 +67,13 @@ const penguinsGentoo = penguins.filter(({ species }) => species === "Gentoo");
             ],
           }}
         />
-      </section>
+      </AccessibleTabsPanel>
 
-      <section class="chart-slide item" id="chinstrap">
+      <AccessibleTabsPanel
+        id="chinstrap-panel"
+        labelledby="chinstrap-tab"
+        class="!rounded-b-lg !border !border-t-0 !border-[#d9e2e8] !bg-white !p-4"
+      >
         <h2 class="mt-0">Chinstrap</h2>
         <PlotFigure
           title="Mesures des manchots Chinstrap"
@@ -56,9 +90,13 @@ const penguinsGentoo = penguins.filter(({ species }) => species === "Gentoo");
             ],
           }}
         />
-      </section>
+      </AccessibleTabsPanel>
 
-      <section class="chart-slide item" id="gentoo">
+      <AccessibleTabsPanel
+        id="gentoo-panel"
+        labelledby="gentoo-tab"
+        class="!rounded-b-lg !border !border-t-0 !border-[#d9e2e8] !bg-white !p-4"
+      >
         <h2 class="mt-0">Gentoo</h2>
         <PlotFigure
           title="Mesures des manchots Gentoo"
@@ -75,31 +113,7 @@ const penguinsGentoo = penguins.filter(({ species }) => species === "Gentoo");
             ],
           }}
         />
-      </section>
-    </div>
+      </AccessibleTabsPanel>
+    </AccessibleTabs>
   </main>
 </Layout>
-
-<script>
-  const speciesSelect = document.querySelector("#species") as HTMLSelectElement | null;
-  const items = document.querySelectorAll(".item");
-
-  speciesSelect?.addEventListener("change", (event) => {
-    const value = (event.target as HTMLSelectElement).value;
-    location.hash = value;
-  });
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        const id = entry.target.getAttribute("id");
-        if (entry.isIntersecting && id && speciesSelect) {
-          speciesSelect.value = id;
-        }
-      });
-    },
-    { threshold: 0.5 },
-  );
-
-  items.forEach((item) => observer.observe(item));
-</script>

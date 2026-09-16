@@ -1,0 +1,46 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PlotFigure from "../components/PlotFigure.astro";
+import * as Plot from "@observablehq/plot";
+import cars from "../assets/cars.json";
+const cylinderCounts = [...new Set(cars.map(({ cylinders }) => cylinders))];
+---
+
+<Layout>
+  <main class="home-content">
+    <h1 class="mt-0 text-2xl">Voitures</h1>
+    <label for="cars-navigation">Nombre de cylindres</label>
+    <select id="cars-navigation" class="chart-menu" aria-label="Voitures par nombre de cylindres">
+      {cylinderCounts.map((cylinders) => <option value={`/cars/${cylinders}`}>{cylinders} cylindres</option>)}
+    </select>
+    <section class="chart-slide">
+      <PlotFigure
+        title="Puissance des voitures selon leur économie de carburant"
+        subtitle="Les voitures sont regroupées par nombre de cylindres."
+        caption="Nuage de points comparant l’économie de carburant et la puissance des voitures."
+        ariaLabel="Nuage de points de la puissance et de l’économie de carburant des voitures"
+        options={{
+          x: { label: "Economy (mpg)" },
+          y: { label: "Power (hp)" },
+          marks: [
+            Plot.dot(cars, {
+              x: "economy (mpg)",
+              y: "power (hp)",
+              stroke: "cylinders",
+              tip: true,
+            }),
+          ],
+        }}
+      />
+    </section>
+  </main>
+</Layout>
+
+<script>
+  const carsSelect = document.querySelector("#cars-navigation") as HTMLSelectElement | null;
+
+  carsSelect?.addEventListener("change", (event) => {
+    const value = (event.target as HTMLSelectElement).value;
+    location.pathname = value;
+  });
+</script>
